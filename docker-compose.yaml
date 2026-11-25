@@ -1,0 +1,11 @@
+services:
+  reviewer:
+    build:
+      context: .
+      target: runtime
+    env_file: .env
+
+  tests:
+    build:
+      context: .
+      target: test
