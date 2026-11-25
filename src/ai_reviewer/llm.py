@@ -1,7 +1,9 @@
 from openai import OpenAI
 
 from .models import PullRequest, ReviewResult
-from .prompts import SYSTEM_PROMPT, build_user_message
+from .prompts import build_system_prompt, build_user_message
+from .review_config import ReviewConfig
+from .review_parser import parse_review
 
 
 class AIReviewer:
@@ -9,17 +11,18 @@ class AIReviewer:
         self.client = OpenAI(api_key=api_key)
         self.model = model
 
-    def review(self, pr: PullRequest, diff_text: str) -> ReviewResult:
+    def review(self, pr: PullRequest, diff_text: str, config: ReviewConfig) -> ReviewResult:
         response = self.client.chat.completions.create(
             model=self.model,
             messages=[
-                {"role": "system", "content": SYSTEM_PROMPT},
+                {"role": "system", "content": build_system_prompt(config)},
                 {"role": "user", "content": build_user_message(pr, diff_text)},
             ],
+            response_format={"type": "json_object"},  # forces a JSON answer
         )
         usage = response.usage
-        return ReviewResult(
-            text=response.choices[0].message.content or "",
+        return parse_review(
+            response.choices[0].message.content or "",
             input_tokens=usage.prompt_tokens if usage else 0,
             output_tokens=usage.completion_tokens if usage else 0,
         )

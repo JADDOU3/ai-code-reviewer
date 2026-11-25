@@ -7,10 +7,23 @@ class PullRequest:
     number: int
     title: str
     body: str
+    base_ref: str  # the branch the PR wants to merge into, e.g. "main"
+
+
+@dataclass(frozen=True)
+class Issue:
+    severity: str  # critical | warning | suggestion
+    file: str
+    title: str
+    details: str
+    fix: str
+    rule_violation: bool = False  # True if it breaks one of the team's custom rules
 
 
 @dataclass(frozen=True)
 class ReviewResult:
-    text: str
-    input_tokens: int
-    output_tokens: int
+    summary: str
+    issues: tuple[Issue, ...]
+    verdict: str  # approve | approve_with_suggestions | changes_requested
+    input_tokens: int = 0
+    output_tokens: int = 0
