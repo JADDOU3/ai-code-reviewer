@@ -33,3 +33,9 @@ def test_empty_when_only_skipped_files():
     )
     result = prepare_diff(lock_only, max_chars=10_000)
     assert result.is_empty
+
+
+def test_ignore_paths_skip_matching_files():
+    result = prepare_diff(SAMPLE_DIFF, max_chars=10_000, ignore_paths=("app.*",))
+    assert "app.py" in result.skipped_files
+    assert result.is_empty

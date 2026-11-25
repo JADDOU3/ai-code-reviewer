@@ -1,4 +1,5 @@
 from dataclasses import dataclass, field
+from fnmatch import fnmatch
 
 # Generated, lock, and binary files: noisy and not worth paying to review
 DEFAULT_SKIP_PATTERNS = (
@@ -23,10 +24,15 @@ def _file_path(chunk: str) -> str:
     return chunk.splitlines()[0].split(" b/")[-1]
 
 
+def _is_skipped(path: str, skip_patterns: tuple[str, ...], ignore_paths: tuple[str, ...]) -> bool:
+    return path.endswith(skip_patterns) or any(fnmatch(path, p) for p in ignore_paths)
+
+
 def prepare_diff(
     raw_diff: str,
     max_chars: int,
     skip_patterns: tuple[str, ...] = DEFAULT_SKIP_PATTERNS,
+    ignore_paths: tuple[str, ...] = (),
 ) -> DiffResult:
     """Remove files we don't want to review, then trim the diff to max_chars."""
     kept, skipped = [], []
@@ -34,7 +40,7 @@ def prepare_diff(
         if not chunk.strip():
             continue
         path = _file_path(chunk)
-        if path.endswith(skip_patterns):
+        if _is_skipped(path, skip_patterns, ignore_paths):
             skipped.append(path)
         else:
             kept.append("diff --git " + chunk)
