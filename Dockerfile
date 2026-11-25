@@ -13,7 +13,7 @@ COPY src ./src
 # ---------- Test: runs pytest + ruff ----------
 FROM base AS test
 COPY tests ./tests
-RUN pip install -e ".[dev]"
+RUN chmod -R a-x+X /app/src /app/tests && pip install -e ".[dev]"
 CMD ["sh", "-c", "pytest && ruff check ."]
 
 # ---------- Runtime: runs the reviewer ----------
