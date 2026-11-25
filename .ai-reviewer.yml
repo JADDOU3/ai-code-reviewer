@@ -1,0 +1,37 @@
+# Settings for the AI code reviewer.
+# Every setting is optional. Delete any line to use its default.
+
+review:
+  # What to look for: bugs, security, performance, readability, tests, documentation
+  focus: [bugs, security, performance, readability]
+
+  # Your team's coding rules. Breaking one is reported as an issue.
+  custom_rules:
+    - "Function and variable names must use snake_case"
+    - "Every public function must have a docstring"
+    - "Use the logging module instead of print() for logs"
+
+  # How serious a broken rule is: critical, warning, or suggestion
+  rule_severity: warning
+
+  # Files or folders to skip (* matches anything)
+  ignore_paths:
+    - "docs/*"
+    - "*.md"
+
+  # Language of the review text
+  language: English
+
+  # friendly, strict, or concise
+  tone: friendly
+
+output:
+  summary: true          # show the Summary section
+  verdict: true          # show the Verdict section
+  severity_labels: true  # show the 🔴 🟠 🟡 labels
+  show_fixes: true       # show a suggested fix for each issue
+
+gate:
+  # When should the check fail and block merging?
+  # never | critical | warning | changes_requested
+  block_on: critical
