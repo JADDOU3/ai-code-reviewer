@@ -17,6 +17,7 @@ def load_pull_request(event_path: str, repo: str) -> PullRequest:
         number=pr["number"],
         title=pr["title"],
         body=pr.get("body") or "",
+        base_ref=pr["base"]["ref"],
     )
 
 
@@ -42,6 +43,7 @@ class GitHubClient:
             number=data["number"],
             title=data["title"],
             body=data.get("body") or "",
+            base_ref=data["base"]["ref"],
         )
 
     def get_diff(self, repo: str, number: int) -> str:
@@ -50,6 +52,19 @@ class GitHubClient:
             headers={"Accept": "application/vnd.github.v3.diff"},
             timeout=self.timeout,
         )
+        response.raise_for_status()
+        return response.text
+
+    def get_file(self, repo: str, path: str, ref: str) -> str | None:
+        """Read a file's text from a branch. Returns None if the file doesn't exist."""
+        response = self.session.get(
+            f"{GITHUB_API}/repos/{repo}/contents/{path}",
+            params={"ref": ref},
+            headers={"Accept": "application/vnd.github.raw+json"},
+            timeout=self.timeout,
+        )
+        if response.status_code == 404:
+            return None
         response.raise_for_status()
         return response.text
 
