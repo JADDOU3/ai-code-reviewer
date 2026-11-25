@@ -11,7 +11,7 @@ def format_comment(review: ReviewResult, diff: DiffResult, model: str, max_chars
     if diff.skipped_files:
         notes.append(f"Skipped {len(diff.skipped_files)} generated/binary file(s).")
 
-    parts = [MARKER, "## 🤖 AI Code Review", "", review.text, "", "---"]
+    parts = [MARKER, "## AI Code Review", "", review.text, "", "---"]
     parts += [f"_{note}_" for note in notes]
     parts.append(
         f"<sub>Model: {model} · Tokens: {review.input_tokens} in / "
