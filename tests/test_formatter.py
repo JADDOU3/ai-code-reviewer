@@ -1,24 +1,48 @@
 from ai_reviewer.diff_utils import DiffResult
 from ai_reviewer.formatter import MARKER, format_comment
-from ai_reviewer.models import ReviewResult
+from ai_reviewer.models import Issue, ReviewResult
+from ai_reviewer.review_config import OutputConfig
 
-REVIEW = ReviewResult(text="Looks good ✅", input_tokens=100, output_tokens=20)
+ISSUE = Issue(
+    severity="critical", file="app.py", title="SQL injection",
+    details="Unsafe query", fix="Use parameters",
+)
+REVIEW = ReviewResult(
+    summary="Adds a login page", issues=(ISSUE,), verdict="changes_requested",
+    input_tokens=100, output_tokens=20,
+)
 
 
-def test_comment_has_marker_and_review():
-    comment = format_comment(REVIEW, DiffResult(text="x"), model="test-model", max_chars=1000)
+def _format(review=REVIEW, diff=None, output=None, blocked=False):
+    return format_comment(
+        review, diff or DiffResult(text="x"), model="test-model", max_chars=1000,
+        output=output or OutputConfig(), blocked=blocked,
+    )
+
+
+def test_default_comment_has_all_sections():
+    comment = _format()
     assert comment.startswith(MARKER)
-    assert "Looks good ✅" in comment
-    assert "test-model" in comment
+    for text in ("### Summary", "🔴 Critical", "SQL injection",
+                 "**Fix:** Use parameters", "### Verdict", "test-model"):
+        assert text in comment
 
 
-def test_comment_mentions_truncation():
-    diff = DiffResult(text="x", truncated=True)
-    comment = format_comment(REVIEW, diff, model="m", max_chars=1000)
+def test_output_settings_hide_sections():
+    output = OutputConfig(summary=False, verdict=False, severity_labels=False, show_fixes=False)
+    comment = _format(output=output)
+    for text in ("### Summary", "### Verdict", "🔴 Critical", "**Fix:**"):
+        assert text not in comment
+
+
+def test_no_issues_message():
+    review = ReviewResult(summary="s", issues=(), verdict="approve")
+    assert "No issues found" in _format(review=review)
+
+
+def test_blocked_banner_and_notes():
+    diff = DiffResult(text="x", truncated=True, skipped_files=["yarn.lock"])
+    comment = _format(diff=diff, blocked=True)
+    assert "Merge blocked" in comment
     assert "too large" in comment
-
-
-def test_comment_mentions_skipped_files():
-    diff = DiffResult(text="x", skipped_files=["yarn.lock", "logo.png"])
-    comment = format_comment(REVIEW, diff, model="m", max_chars=1000)
-    assert "Skipped 2" in comment
+    assert "Skipped 1" in comment
