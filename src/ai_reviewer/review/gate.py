@@ -1,5 +1,5 @@
-from .models import ReviewResult
-from .review_config import GateConfig
+from ..models import ReviewResult
+from .settings import GateConfig
 
 
 def should_block(review: ReviewResult, gate: GateConfig) -> bool:
