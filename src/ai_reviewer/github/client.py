@@ -2,7 +2,7 @@ import json
 
 import requests
 
-from .models import PullRequest
+from ..models import PullRequest
 
 GITHUB_API = "https://api.github.com"
 
@@ -18,6 +18,7 @@ def load_pull_request(event_path: str, repo: str) -> PullRequest:
         title=pr["title"],
         body=pr.get("body") or "",
         base_ref=pr["base"]["ref"],
+        head_sha=pr["head"]["sha"],
     )
 
 
@@ -44,6 +45,7 @@ class GitHubClient:
             title=data["title"],
             body=data.get("body") or "",
             base_ref=data["base"]["ref"],
+            head_sha=data["head"]["sha"],
         )
 
     def get_diff(self, repo: str, number: int) -> str:
@@ -84,3 +86,20 @@ class GitHubClient:
                 return
 
         self.session.post(url, json={"body": body}, timeout=self.timeout).raise_for_status()
+
+    def create_review(
+        self, repo: str, number: int, commit_id: str, body: str, comments: list[dict]
+    ) -> None:
+        """Post a PR review with comments on specific lines."""
+        if not comments:
+            return
+        self.session.post(
+            f"{GITHUB_API}/repos/{repo}/pulls/{number}/reviews",
+            json={
+                "commit_id": commit_id,
+                "event": "COMMENT",  # just comment; don't approve or request changes
+                "body": body,
+                "comments": comments,
+            },
+            timeout=self.timeout,
+        ).raise_for_status()
