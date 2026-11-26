@@ -4,7 +4,15 @@ An AI-powered pull request reviewer built with **Python**, the **OpenAI API**, *
 
 Every time a pull request is opened or updated, the bot reads the code changes, reviews them for bugs, security problems, performance issues, and your team's own coding rules, then posts a structured review as a comment on the PR. It can also **block merging** when serious issues are found.
 
+## Example
 
+**Comments directly on the code:**
+
+![AI comment on a line of code](docs/images/inline-comment.png)
+
+**Review summary with the merge gate:**
+
+![Review summary blocking a merge](docs/images/summary.png)
 
 ---
 ##  Features
