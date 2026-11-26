@@ -1,4 +1,4 @@
-from ai_reviewer.diff_utils import prepare_diff
+from ai_reviewer.diff.filtering import prepare_diff
 
 SAMPLE_DIFF = (
     "diff --git a/app.py b/app.py\n"

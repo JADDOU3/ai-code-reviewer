@@ -1,6 +1,6 @@
-from ai_reviewer.gate import should_block
 from ai_reviewer.models import Issue, ReviewResult
-from ai_reviewer.review_config import GateConfig
+from ai_reviewer.review.gate import should_block
+from ai_reviewer.review.settings import GateConfig
 
 
 def _review(*severities, verdict="approve"):

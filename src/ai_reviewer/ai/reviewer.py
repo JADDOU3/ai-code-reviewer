@@ -1,9 +1,9 @@
 from openai import OpenAI
 
-from .models import PullRequest, ReviewResult
+from ..models import PullRequest, ReviewResult
+from ..review.settings import ReviewConfig
+from .parser import parse_review
 from .prompts import build_system_prompt, build_user_message
-from .review_config import ReviewConfig
-from .review_parser import parse_review
 
 
 class AIReviewer:

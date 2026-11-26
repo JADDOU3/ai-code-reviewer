@@ -1,5 +1,5 @@
-from .models import PullRequest
-from .review_config import ReviewConfig
+from ..models import PullRequest
+from ..review.settings import ReviewConfig
 
 FOCUS_DESCRIPTIONS = {
     "bugs": "bugs and logic errors",
@@ -16,6 +16,13 @@ TONE_INSTRUCTIONS = {
     "concise": "Be very brief. Keep every explanation to one short sentence.",
 }
 
+LINE_NUMBER_GUIDE = """About line numbers:
+- In the diff, every line that exists in the new version of the file starts with "L<number>: ".
+  That number is the line number in the new file. Removed lines (starting with "-") have no number.
+- For each issue, set "line" to the L-number of the line where the problem is.
+  If the problem spans several lines, use the first one.
+- Use null for "line" only if the issue is not about one specific line."""
+
 JSON_FORMAT = """Respond with ONLY a JSON object in exactly this shape:
 {
   "summary": "1-2 sentences about what the PR does",
@@ -23,6 +30,7 @@ JSON_FORMAT = """Respond with ONLY a JSON object in exactly this shape:
     {
       "severity": "critical" | "warning" | "suggestion",
       "file": "path/to/file",
+      "line": <the L-number of the problem line> or null,
       "title": "short title of the problem",
       "details": "what is wrong and why it matters",
       "fix": "how to fix it",
@@ -77,6 +85,8 @@ def build_system_prompt(config: ReviewConfig) -> str:
             "Keep the JSON keys and the severity and verdict values in English."
         ),
         "",
+        LINE_NUMBER_GUIDE,
+        "",
         JSON_FORMAT,
     ]
     return "\n".join(parts)
@@ -86,5 +96,5 @@ def build_user_message(pr: PullRequest, diff_text: str) -> str:
     return (
         f"PR title: {pr.title}\n\n"
         f"PR description:\n{pr.body or '(none)'}\n\n"
-        f"Diff:\n```diff\n{diff_text}\n```"
+        f"Diff (lines in the new file start with L<number>):\n```diff\n{diff_text}\n```"
     )
