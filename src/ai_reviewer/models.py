@@ -8,6 +8,7 @@ class PullRequest:
     title: str
     body: str
     base_ref: str  # the branch the PR wants to merge into, e.g. "main"
+    head_sha: str  # the PR's latest commit, needed to post line comments
 
 
 @dataclass(frozen=True)
@@ -18,6 +19,7 @@ class Issue:
     details: str
     fix: str
     rule_violation: bool = False  # True if it breaks one of the team's custom rules
+    line: int | None = None       # line in the new file, if the AI gave one
 
 
 @dataclass(frozen=True)

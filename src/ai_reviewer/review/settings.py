@@ -2,7 +2,7 @@ from dataclasses import dataclass, field
 
 import yaml
 
-from .config import ConfigError
+from ..config import ConfigError
 
 CONFIG_FILE_NAME = ".ai-reviewer.yml"
 
@@ -10,10 +10,11 @@ VALID_FOCUS = ("bugs", "security", "performance", "readability", "tests", "docum
 VALID_TONES = ("friendly", "strict", "concise")
 VALID_SEVERITIES = ("critical", "warning", "suggestion")
 VALID_BLOCK_ON = ("never", "critical", "warning", "changes_requested")
+VALID_COMMENT_STYLES = ("summary", "inline", "both")
 
 TOP_LEVEL_KEYS = {"review", "output", "gate"}
 REVIEW_KEYS = {"focus", "custom_rules", "rule_severity", "ignore_paths", "language", "tone"}
-OUTPUT_KEYS = {"summary", "verdict", "severity_labels", "show_fixes"}
+OUTPUT_KEYS = {"summary", "verdict", "severity_labels", "show_fixes", "comment_style"}
 GATE_KEYS = {"block_on"}
 
 
@@ -23,6 +24,7 @@ class OutputConfig:
     verdict: bool = True
     severity_labels: bool = True
     show_fixes: bool = True
+    comment_style: str = "summary"
 
 
 @dataclass(frozen=True)
@@ -137,6 +139,10 @@ def parse_review_config(text: str | None) -> ReviewConfig:
             verdict=_bool(output.get("verdict"), "output.verdict", True),
             severity_labels=_bool(output.get("severity_labels"), "output.severity_labels", True),
             show_fixes=_bool(output.get("show_fixes"), "output.show_fixes", True),
+            comment_style=_choice(
+                output.get("comment_style"), "output.comment_style",
+                VALID_COMMENT_STYLES, "summary",
+            ),
         ),
         gate=GateConfig(
             block_on=_choice(gate.get("block_on"), "gate.block_on", VALID_BLOCK_ON, "never"),

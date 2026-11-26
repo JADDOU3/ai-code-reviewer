@@ -1,6 +1,6 @@
 import pytest
 
-from ai_reviewer.review_parser import ReviewParseError, parse_review
+from ai_reviewer.ai.parser import ReviewParseError, parse_review
 
 
 def test_parses_valid_json():
@@ -28,3 +28,16 @@ def test_missing_verdict_is_inferred():
 def test_invalid_json_raises():
     with pytest.raises(ReviewParseError):
         parse_review("not json")
+
+
+def test_line_numbers_are_parsed():
+    raw = (
+        '{"summary": "", "verdict": "approve", "issues": ['
+        '{"severity": "warning", "title": "a", "line": 12},'
+        '{"severity": "warning", "title": "b", "line": "L7"},'
+        '{"severity": "warning", "title": "c", "line": null},'
+        '{"severity": "warning", "title": "d", "line": true}'
+        "]}"
+    )
+    lines = [issue.line for issue in parse_review(raw).issues]
+    assert lines == [12, 7, None, None]

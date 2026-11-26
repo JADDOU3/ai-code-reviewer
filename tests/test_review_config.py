@@ -1,7 +1,7 @@
 import pytest
 
 from ai_reviewer.config import ConfigError
-from ai_reviewer.review_config import ReviewConfig, parse_review_config
+from ai_reviewer.review.settings import ReviewConfig, parse_review_config
 
 
 def test_no_file_gives_defaults():
@@ -48,3 +48,11 @@ def test_unknown_setting_raises():
 def test_invalid_yaml_raises():
     with pytest.raises(ConfigError, match="not valid YAML"):
         parse_review_config("review: [unclosed")
+
+
+def test_comment_style():
+    config = parse_review_config("output:\n  comment_style: inline\n")
+    assert config.output.comment_style == "inline"
+    assert parse_review_config(None).output.comment_style == "summary"
+    with pytest.raises(ConfigError, match="comment_style"):
+        parse_review_config("output:\n  comment_style: sideways\n")

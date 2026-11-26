@@ -121,7 +121,7 @@ gate:
 | `verdict` | `true` / `false` | `true` | Show the final verdict (Approve / Approve with suggestions / Changes requested) |
 | `severity_labels` | `true` / `false` | `true` | Show 🔴 🟠 🟡 labels on issues |
 | `show_fixes` | `true` / `false` | `true` | Show a suggested fix for each issue |
-
+| `comment_style` | `summary`, `inline`, `both` | `summary` | `summary`: one comment with all issues. `inline`: each issue is posted on its exact line, plus a short summary. `both`: the full summary and the line comments |
 ### `gate`: when to block merging
 
 | Setting | Values | Default | Description |

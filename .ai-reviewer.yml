@@ -26,6 +26,7 @@ review:
   tone: friendly
 
 output:
+  comment_style: inline   # summary | inline | both
   summary: true          # show the Summary section
   verdict: true          # show the Verdict section
   severity_labels: true  # show the 🔴 🟠 🟡 labels
